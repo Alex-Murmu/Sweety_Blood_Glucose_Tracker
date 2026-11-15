@@ -1476,4 +1476,3 @@ export type ReadingDefaultArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.ReadingInclude<ExtArgs> | null
 }
-

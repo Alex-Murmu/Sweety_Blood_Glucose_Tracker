@@ -16,6 +16,7 @@ export const config = {
   cookieName: process.env.COOKIE_NAME || "sweety_token",
   cookieMaxAge: Number(process.env.COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
   clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
+  redisUrl: process.env.REDIS_URL || "",
   nodeEnv: process.env.NODE_ENV || "development",
 } as const;
 

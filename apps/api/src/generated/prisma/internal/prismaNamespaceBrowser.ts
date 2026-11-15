@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  DoctorPatient: 'DoctorPatient',
   Reading: 'Reading'
 } as const
 
@@ -76,10 +77,21 @@ export const UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   password: 'password',
+  role: 'role',
   createdAt: 'createdAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const DoctorPatientScalarFieldEnum = {
+  id: 'id',
+  doctorId: 'doctorId',
+  patientId: 'patientId',
+  assignedAt: 'assignedAt'
+} as const
+
+export type DoctorPatientScalarFieldEnum = (typeof DoctorPatientScalarFieldEnum)[keyof typeof DoctorPatientScalarFieldEnum]
 
 
 export const ReadingScalarFieldEnum = {
@@ -109,5 +121,4 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
 

@@ -17,13 +17,32 @@ enum Slot {
   AFTER_DINNER
 }
 
+enum Role {
+  PATIENT
+  DOCTOR
+}
+
 model User {
   id        String   @id @default(cuid())
   name      String
   email     String   @unique
   password  String
+  role      Role     @default(PATIENT)
   readings  Reading[]
-  createdAt DateTime @default(now())
+  assignedPatients DoctorPatient[] @relation("DoctorAssignments") // patients assigned to this doctor
+  assignedDoctors DoctorPatient[] @relation("PatientAssignments") // doctors assigned to this patient
+  createdAt   DateTime @default(now())
+}
+
+model DoctorPatient {
+  id        String   @id @default(cuid())
+  doctor    User     @relation("DoctorAssignments", fields: [doctorId], references: [id], onDelete: Cascade)
+  doctorId  String
+  patient   User     @relation("PatientAssignments", fields: [patientId], references: [id], onDelete: Cascade)
+  patientId String
+  assignedAt DateTime @default(now())
+
+  @@unique([doctorId, patientId])
 }
 
 model Reading {

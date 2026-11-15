@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../utils/prisma.js";
 import { AuthRequest } from "../middlewares/auth.js";
 import { HttpError, asyncHandler } from "../middlewares/errorHandler.js";
+import { clearReportCache } from "../utils/redis.js";
 
 export const readingSchema = z.object({
   date: z.string().datetime({ message: "Invalid date format" }),
@@ -52,24 +53,38 @@ export const listReadings = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
     const dateParam = req.query.date as string | undefined;
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
     const targetDate = dateParam ? new Date(dateParam) : new Date();
 
     if (isNaN(targetDate.getTime())) {
       throw new HttpError(400, "Invalid date");
     }
 
-    const readings = await prisma.reading.findMany({
+    const where = {
+      userId,
+      date: {
+        gte: startOfDay(targetDate),
+        lte: endOfDay(targetDate),
+      },
+    };
+    const [readings, total] = await Promise.all([
+      prisma.reading.findMany({
       where: {
-        userId,
-        date: {
-          gte: startOfDay(targetDate),
-          lte: endOfDay(targetDate),
-        },
+        ...where,
       },
       orderBy: { slot: "asc" },
-    });
+      skip: (page - 1) * limit,
+      take: limit,
+      }),
+      prisma.reading.count({ where }),
+    ]);
 
-    res.json({ success: true, readings });
+    res.json({
+      success: true,
+      readings,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
   }
 );
 
@@ -128,6 +143,7 @@ export const createReading = asyncHandler(
         value: body.value,
       },
     });
+    await clearReportCache([userId]);
 
     res.status(201).json({ success: true, reading });
   }
@@ -209,6 +225,7 @@ export const updateReading = asyncHandler(
         ...(body.value !== undefined ? { value: body.value } : {}),
       },
     });
+    await clearReportCache([userId]);
 
     res.json({ success: true, reading });
   }
@@ -227,6 +244,7 @@ export const deleteReading = asyncHandler(
     }
 
     await prisma.reading.delete({ where: { id } });
+    await clearReportCache([userId]);
 
     res.json({ success: true, message: "Reading deleted" });
   }

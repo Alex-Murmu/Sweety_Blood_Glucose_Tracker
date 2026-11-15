@@ -4,7 +4,7 @@ import { config } from "../config/config.js";
 import { HttpError } from "./errorHandler.js";
 
 export interface AuthRequest extends Request {
-  user?: { id: string; email: string; name: string };
+  user?: { id: string; email: string; name: string; role: "PATIENT" | "DOCTOR" };
 }
 
 export const authMiddleware = (
@@ -23,6 +23,7 @@ export const authMiddleware = (
       id: string;
       email: string;
       name: string;
+      role: "PATIENT" | "DOCTOR";
     };
     req.user = decoded;
     next();

@@ -19,16 +19,17 @@ async function request(path: string, options: RequestInit = {}) {
 }
 
 export const api = {
-  signup: (data: { name: string; email: string; password: string }) =>
+  signup: (data: { name: string; email: string; password: string; role?: "PATIENT" | "DOCTOR" }) =>
     request("/auth/signup", { method: "POST", body: JSON.stringify(data) }),
   login: (data: { email: string; password: string }) =>
     request("/auth/login", { method: "POST", body: JSON.stringify(data) }),
   logout: () => request("/auth/logout", { method: "POST" }),
   me: () => request("/auth/me"),
 
-  getReadings: (date?: string) => {
-    const qs = date ? `?date=${encodeURIComponent(date)}` : "";
-    return request(`/readings${qs}`);
+  getReadings: (date?: string, page = 1, limit = 20) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (date) params.set("date", date);
+    return request(`/readings?${params.toString()}`);
   },
   createReading: (data: { date: string; slot: string; value: number }) =>
     request("/readings", { method: "POST", body: JSON.stringify(data) }),
@@ -36,16 +37,25 @@ export const api = {
     request(`/readings/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteReading: (id: string) => request(`/readings/${id}`, { method: "DELETE" }),
 
-  dailyReport: (date?: string) => {
-    const qs = date ? `?date=${encodeURIComponent(date)}` : "";
-    return request(`/reports/daily${qs}`);
+  dailyReport: (date?: string, patientId?: string) => {
+    const params = new URLSearchParams();
+    if (date) params.set("date", date);
+    if (patientId) params.set("patientId", patientId);
+    return request(`/reports/daily?${params.toString()}`);
   },
-  monthToDateReport: (date?: string) => {
-    const qs = date ? `?date=${encodeURIComponent(date)}` : "";
-    return request(`/reports/month-to-date${qs}`);
+  monthToDateReport: (date?: string, patientId?: string) => {
+    const params = new URLSearchParams();
+    if (date) params.set("date", date);
+    if (patientId) params.set("patientId", patientId);
+    return request(`/reports/month-to-date?${params.toString()}`);
   },
-  monthlyReport: (date?: string) => {
-    const qs = date ? `?date=${encodeURIComponent(date)}` : "";
-    return request(`/reports/monthly${qs}`);
+  monthlyReport: (date?: string, patientId?: string) => {
+    const params = new URLSearchParams();
+    if (date) params.set("date", date);
+    if (patientId) params.set("patientId", patientId);
+    return request(`/reports/monthly?${params.toString()}`);
   },
+  doctorPatients: () => request("/doctors/patients"),
+  assignPatient: (patientId: string) =>
+    request("/doctors/patients", { method: "POST", body: JSON.stringify({ patientId }) }),
 };

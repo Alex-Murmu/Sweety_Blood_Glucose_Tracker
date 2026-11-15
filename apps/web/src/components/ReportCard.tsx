@@ -1,4 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { CalendarDays, ChartNoAxesCombined } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import ReadingChart from "./ReadingChart.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.js";
 
 export interface Report {
   type: string;
@@ -30,15 +33,14 @@ export default function ReportCard({ title, fetchReport }: ReportCardProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const loadReport = useCallback(async (d: string) => {
+  const loadReport = useCallback(async (selectedDate: string) => {
     setLoading(true);
     setError("");
     try {
-      const data = await fetchReport(d);
+      const data = await fetchReport(selectedDate);
       setReport(data);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to load report";
-      setError(message);
+      setError(err instanceof Error ? err.message : "Failed to load report");
       setReport(null);
     } finally {
       setLoading(false);
@@ -47,104 +49,53 @@ export default function ReportCard({ title, fetchReport }: ReportCardProps) {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadReport(date);
+    void loadReport(date);
   }, [loadReport, date]);
 
-  if (loading && !report) {
-    return (
-      <div style={styles.card}>
-        <h3>{title}</h3>
-        <p>Loading…</p>
-      </div>
-    );
-  }
-
-  if (!report) {
-    return (
-      <div style={styles.card}>
-        <h3>{title}</h3>
-        <div style={styles.field}>
-          <label>Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            style={styles.input}
-          />
-        </div>
-        {error && <div style={styles.error}>{error}</div>}
-        {!error && <p>Select a date to view the report.</p>}
-      </div>
-    );
-  }
-
   return (
-    <div style={styles.card}>
-      <h3>{title}</h3>
-      <div style={styles.field}>
-        <label>Date</label>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          style={styles.input}
-        />
-      </div>
-      {error && <div style={styles.error}>{error}</div>}
-      {report.count === 0 ? (
-        <p style={styles.empty}>No readings in this period.</p>
-      ) : (
-        <>
-          <div style={styles.stats}>
-            <div style={styles.stat}>
-              <div style={styles.statLabel}>Highest</div>
-              <div style={styles.statValue}>{report.highest} mg/dl</div>
-            </div>
-            <div style={styles.stat}>
-              <div style={styles.statLabel}>Lowest</div>
-              <div style={styles.statValue}>{report.lowest} mg/dl</div>
-            </div>
-            <div style={styles.stat}>
-              <div style={styles.statLabel}>Average</div>
-              <div style={styles.statValue}>{report.average} mg/dl</div>
-            </div>
-            <div style={styles.stat}>
-              <div style={styles.statLabel}>Count</div>
-              <div style={styles.statValue}>{report.count}</div>
-            </div>
+    <Card className="border-landing-border bg-landing-panel text-landing-text">
+      <CardHeader className="flex-row items-start justify-between gap-5 border-b border-landing-border">
+        <div>
+          <CardTitle className="text-2xl tracking-[-0.04em]">{title}</CardTitle>
+          <p className="mt-2 text-sm text-landing-muted">A focused view of your recorded glucose.</p>
+        </div>
+        <label className="flex items-center gap-2 text-xs text-landing-muted">
+          <CalendarDays className="size-4 text-landing-accent" />
+          <span className="sr-only">Report date</span>
+          <input type="date" value={date} onChange={(event) => setDate(event.target.value)} className="h-9 rounded-md border border-landing-border bg-landing-bg px-2 text-landing-text outline-none focus:ring-2 focus:ring-landing-accent" />
+        </label>
+      </CardHeader>
+      <CardContent className="p-5 sm:p-6">
+        {loading && !report ? <p className="py-10 text-sm text-landing-muted">Loading report…</p> : error ? <div className="rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</div> : !report ? <p className="py-10 text-sm text-landing-muted">Select a date to view the report.</p> : report.count === 0 ? (
+          <div className="rounded-xl border border-dashed border-landing-border px-6 py-10 text-center">
+            <ChartNoAxesCombined className="mx-auto size-6 text-landing-muted" />
+            <p className="mt-3 text-sm font-medium">No readings in this period.</p>
+            <p className="mt-1 text-sm text-landing-muted">Add a reading to start seeing your pattern.</p>
           </div>
-          <h4 style={styles.subheading}>Readings</h4>
-          <ul style={styles.list}>
-            {report.readings.map((r) => (
-              <li key={r.id} style={styles.item}>
-                {SLOT_LABELS[r.slot] || r.slot}: {r.value} mg/dl
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-    </div>
+        ) : (
+          <>
+            <div className="grid gap-3 sm:grid-cols-4">
+              <Stat label="Highest" value={`${report.highest} mg/dl`} />
+              <Stat label="Lowest" value={`${report.lowest} mg/dl`} />
+              <Stat label="Average" value={`${report.average} mg/dl`} />
+              <Stat label="Count" value={String(report.count)} />
+            </div>
+            <div className="mt-8 rounded-xl border border-landing-border bg-landing-bg/40 p-4">
+              <ReadingChart readings={report.readings} />
+            </div>
+            <div className="mt-8">
+              <h4 className="text-sm font-medium">Readings in this period</h4>
+              <div className="mt-3 divide-y divide-landing-border rounded-xl border border-landing-border">
+                {report.readings.map((reading) => <div key={reading.id} className="flex items-center justify-between px-4 py-3 text-sm"><span className="text-landing-muted">{SLOT_LABELS[reading.slot] || reading.slot}</span><span className="font-medium">{reading.value} mg/dl</span></div>)}
+              </div>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  card: {
-    background: "#fff",
-    padding: 20,
-    borderRadius: 8,
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    marginBottom: 20,
-  },
-  field: { display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 },
-  label: { fontSize: 14, fontWeight: 600 },
-  input: { padding: 8, fontSize: 14 },
-  error: { color: "red", fontSize: 14, marginBottom: 12 },
-  empty: { color: "#666", fontSize: 14 },
-  stats: { display: "flex", gap: 16, marginBottom: 20 },
-  stat: { padding: 12, background: "#f8fafc", borderRadius: 6, minWidth: 90 },
-  statLabel: { fontSize: 12, color: "#64748b", textTransform: "uppercase" },
-  statValue: { fontSize: 18, fontWeight: 700 },
-  subheading: { marginTop: 0, fontSize: 16 },
-  list: { listStyle: "none", padding: 0 },
-  item: { padding: 8, borderBottom: "1px solid #f1f5f9" },
-};
+function Stat({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-xl border border-landing-border bg-landing-bg/40 p-4"><p className="text-xs text-landing-muted">{label}</p><p className="mt-2 text-lg font-semibold tracking-tight">{value}</p></div>;
+}

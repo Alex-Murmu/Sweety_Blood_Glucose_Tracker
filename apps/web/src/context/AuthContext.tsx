@@ -5,12 +5,13 @@ export type User = {
   id: string;
   name: string;
   email: string;
+  role: "PATIENT" | "DOCTOR";
 };
 
 export type AuthContextType = {
   user: User | null;
   loading: boolean;
-  register: (data: { name: string; email: string; password: string }) => Promise<void>;
+  register: (data: { name: string; email: string; password: string; role?: "PATIENT" | "DOCTOR" }) => Promise<void>;
   signin: (data: { email: string; password: string }) => Promise<void>;
   signout: () => Promise<void>;
 };
@@ -40,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const register = useCallback(
-    async (data: { name: string; email: string; password: string }) => {
+    async (data: { name: string; email: string; password: string; role?: "PATIENT" | "DOCTOR" }) => {
       const res = await api.signup(data);
       setUser(res.user);
     },

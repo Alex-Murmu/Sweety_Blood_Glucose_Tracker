@@ -15,7 +15,7 @@ apps/
   web/   # @sweety/web  — React frontend
 ```
 
-Managed with **Turborepo** + **pnpm workspaces**.
+Managed with **pnpm workspaces**.
 
 ## 1. Install
 
@@ -43,7 +43,7 @@ Sweety uses **PostgreSQL**. You need a running PostgreSQL server at the `DATABAS
    pnpm seed
    ```
 
-   Demo credentials: `demo@sweety.local` / `Password123`
+   Demo credentials: patient `demo@sweety.local` / `Password123`; doctor `doctor@sweety.local` / `Password123`
 
 > **Note:** PostgreSQL is not installed in this repository. You must have a PostgreSQL server running and reachable at the `DATABASE_URL` before running migrations or seeding.
 
@@ -75,6 +75,12 @@ cd apps/api
 pnpm test
 ```
 
+```bash
+# Frontend tests
+cd apps/web
+pnpm test
+```
+
 ## 5. Build
 
 ```bash
@@ -99,6 +105,11 @@ pnpm build
 | GET | /reports/daily?date= | Daily report | Yes |
 | GET | /reports/month-to-date?date= | Month-to-date report | Yes |
 | GET | /reports/monthly?date= | Monthly (previous month) report | Yes |
+| GET | /doctors/patients | List assigned patients (doctor) | Yes |
+| POST | /doctors/patients | Assign a patient by ID (doctor) | Yes |
+
+`GET /readings` also accepts `page` and `limit` (maximum 100). Report endpoints
+accept `patientId` for an assigned doctor.
 
 ## Reading validation rules
 
@@ -137,9 +148,11 @@ Run with: `pnpm seed` (in `apps/api`)
 - Auth uses JWT stored in an **httpOnly cookie** (not localStorage).
 - Dates are stored as UTC in PostgreSQL; the client sends the user's local date.
 - PostgreSQL must be running locally (or remotely via `DATABASE_URL`) before migrations/seed.
-- No Docker, Redis, charts, or pagination are included in the required scope (bonus items).
+- Optional Redis caching and a BullMQ daily reminder job are enabled when `REDIS_URL` is set.
+- `docker compose up --build` starts PostgreSQL, Redis, the API, and the web client.
 - The frontend is a single-page SPA without a routing library (auth-gated views render conditionally).
-- With more time I would add: charts (Recharts), pagination, Redis caching for reports, Docker Compose, frontend tests, and a doctor role.
+- Bonus features included: pagination, Recharts monthly charts, Docker Compose, React Testing Library coverage,
+  Redis report caching, a BullMQ reminder job, and doctor/patient assignments.
 
 ## License
 

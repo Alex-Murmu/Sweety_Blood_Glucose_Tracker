@@ -1,50 +1,32 @@
+import { CalendarDays, HeartPulse } from "lucide-react";
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext.tsx";
+import { Card, CardContent } from "../components/ui/card.js";
 import ReadingList from "../components/ReadingList.tsx";
+import { useAuth } from "../context/AuthContext.tsx";
 
 export default function Readings() {
   const { user } = useAuth();
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
 
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <h1>My Readings</h1>
-        <div style={styles.actions}>
-          <label style={styles.dateLabel}>Date</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            style={styles.dateInput}
-          />
+    <section className="space-y-8">
+      <div className="flex flex-col justify-between gap-6 border-b border-landing-border pb-8 md:flex-row md:items-end">
+        <div>
+          <div className="mb-4 flex items-center gap-2 text-sm text-landing-accent"><HeartPulse className="size-4" /> Daily rhythm</div>
+          <h1 className="text-4xl font-semibold tracking-[-0.06em] sm:text-5xl">Your readings</h1>
+          <p className="mt-3 text-base text-landing-muted">Hello, {user?.name}. Keep today&apos;s story close.</p>
         </div>
-      </header>
-
-      <div style={styles.welcome}>
-        {user ? `Hello, {user.name}` : "Hello"}
+        <label className="flex items-center gap-3 text-sm text-landing-muted">
+          <CalendarDays className="size-4 text-landing-accent" />
+          <span className="sr-only">Choose date</span>
+          <input type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="h-10 rounded-md border border-landing-border bg-landing-panel px-3 text-landing-text outline-none focus:ring-2 focus:ring-landing-accent" />
+        </label>
       </div>
-
-      <div style={styles.card}>
-        <ReadingList selectedDate={selectedDate} />
-      </div>
-    </div>
+      <Card className="border-landing-border bg-landing-panel text-landing-text">
+        <CardContent className="p-0">
+          <ReadingList selectedDate={selectedDate} />
+        </CardContent>
+      </Card>
+    </section>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  container: { maxWidth: 900, margin: "0 auto", padding: 24, fontFamily: "system-ui, sans-serif" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 },
-  actions: { display: "flex", alignItems: "center", gap: 12 },
-  dateLabel: { fontSize: 14, fontWeight: 600 },
-  dateInput: { padding: 8, fontSize: 14 },
-  welcome: { fontSize: 18, marginBottom: 20, color: "#334155" },
-  card: {
-    background: "#fff",
-    padding: 20,
-    borderRadius: 8,
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-  },
-};

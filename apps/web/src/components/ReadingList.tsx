@@ -1,15 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { Pencil, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "../api.ts";
 import ReadingForm from "./ReadingForm.tsx";
+import { Button } from "./ui/button.js";
 
 type Slot = "MORNING" | "AFTER_BREAKFAST" | "AFTER_LUNCH" | "AFTER_DINNER";
-
-interface Reading {
-  id: string;
-  date: string;
-  slot: Slot;
-  value: number;
-}
+interface Reading { id: string; date: string; slot: Slot; value: number }
 
 const SLOT_LABELS: Record<Slot, string> = {
   MORNING: "Morning (fasting)",
@@ -18,128 +14,85 @@ const SLOT_LABELS: Record<Slot, string> = {
   AFTER_DINNER: "After dinner",
 };
 
-export interface ReadingListProps {
-  selectedDate: string;
-}
-
-export default function ReadingList({ selectedDate }: ReadingListProps) {
+export default function ReadingList({ selectedDate }: { selectedDate: string }) {
   const [readings, setReadings] = useState<Reading[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchReadings = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.getReadings(selectedDate);
+      const data = await api.getReadings(selectedDate, page);
       setReadings(data.readings || []);
+      setTotalPages(data.pagination?.totalPages || 1);
     } catch {
       setReadings([]);
     } finally {
       setLoading(false);
     }
-  }, [selectedDate]);
+  }, [selectedDate, page]);
 
+  // The request synchronizes this list with the selected date and pagination state.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchReadings();
+    void fetchReadings();
   }, [fetchReadings]);
 
   async function handleDelete(id: string) {
     if (!window.confirm("Delete this reading?")) return;
     try {
       await api.deleteReading(id);
-      setReadings((prev) => prev.filter((r) => r.id !== id));
+      setReadings((prev) => prev.filter((reading) => reading.id !== id));
       if (editingId === id) setEditingId(null);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Delete failed";
-      alert(message);
+      alert(err instanceof Error ? err.message : "Delete failed");
     }
   }
 
   return (
-    <div style={styles.card}>
-      <h3>Readings for {new Date(selectedDate).toDateString()}</h3>
-      {loading ? (
-        <p>Loading…</p>
-      ) : readings.length === 0 ? (
-        <p style={styles.empty}>No readings for this date yet.</p>
-      ) : (
-        <ul style={styles.list}>
-          {readings.map((r) => (
-            <li key={r.id} style={styles.item}>
-              <span style={styles.slot}>{SLOT_LABELS[r.slot]}</span>
-              <span style={styles.value}>{r.value} mg/dl</span>
-              <div style={styles.actions}>
-                <button
-                  onClick={() => setEditingId(r.id)}
-                  style={styles.editButton}
-                >
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(r.id)} style={styles.deleteButton}>
-                  Delete
-                </button>
+    <div>
+      <div className="flex items-center justify-between border-b border-landing-border px-5 py-5 sm:px-6">
+        <div>
+          <h2 className="font-medium">Readings for {new Date(selectedDate).toDateString()}</h2>
+          <p className="mt-1 text-xs text-landing-muted">Up to four moments each day.</p>
+        </div>
+        <span className="rounded-full border border-landing-border px-3 py-1 text-xs text-landing-muted">{readings.length} logged</span>
+      </div>
+      <div className="p-5 sm:p-6">
+        {loading ? <p className="py-8 text-sm text-landing-muted">Loading readings…</p> : readings.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-landing-border px-6 py-10 text-center">
+            <p className="text-sm font-medium">No readings for this date yet.</p>
+            <p className="mt-2 text-sm text-landing-muted">Add your first moment below.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-landing-border rounded-xl border border-landing-border">
+            {readings.map((reading) => (
+              <div key={reading.id} className="flex flex-wrap items-center justify-between gap-4 px-4 py-4">
+                <div>
+                  <p className="text-sm font-medium">{SLOT_LABELS[reading.slot]}</p>
+                  <p className="mt-1 text-xs text-landing-muted">Recorded for {selectedDate}</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <p className="text-xl font-semibold tracking-tight">{reading.value} <span className="text-xs font-normal text-landing-muted">mg/dl</span></p>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" className="text-landing-muted hover:bg-landing-panel-strong hover:text-landing-text" onClick={() => setEditingId(reading.id)}><Pencil className="mr-1.5 size-3.5" /> Edit</Button>
+                    <Button variant="ghost" size="sm" className="text-red-300 hover:bg-red-400/10 hover:text-red-200" onClick={() => handleDelete(reading.id)}><Trash2 className="mr-1.5 size-3.5" /> Delete</Button>
+                  </div>
+                </div>
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
-      {editingId && (
-        <ReadingForm
-          onSuccess={() => {
-            setEditingId(null);
-            fetchReadings();
-          }}
-          initialDate={selectedDate}
-          editingId={editingId}
-          initialSlot={readings.find((r) => r.id === editingId)?.slot}
-          initialValue={readings.find((r) => r.id === editingId)?.value}
-        />
-      )}
-      {!editingId && (
-        <ReadingForm
-          onSuccess={() => fetchReadings()}
-          initialDate={selectedDate}
-        />
-      )}
+            ))}
+          </div>
+        )}
+        {totalPages > 1 && <div className="mt-4 flex items-center justify-center gap-4 text-sm text-landing-muted">
+          <Button variant="outline" size="sm" disabled={page === 1} className="border-landing-border bg-transparent text-landing-text hover:bg-landing-panel" onClick={() => setPage((value) => value - 1)}>Previous</Button>
+          <span>Page {page} of {totalPages}</span>
+          <Button variant="outline" size="sm" disabled={page === totalPages} className="border-landing-border bg-transparent text-landing-text hover:bg-landing-panel" onClick={() => setPage((value) => value + 1)}>Next</Button>
+        </div>}
+      </div>
+      {editingId && <ReadingForm onSuccess={() => { setEditingId(null); fetchReadings(); }} initialDate={selectedDate} editingId={editingId} initialSlot={readings.find((reading) => reading.id === editingId)?.slot} initialValue={readings.find((reading) => reading.id === editingId)?.value} />}
+      {!editingId && <ReadingForm onSuccess={fetchReadings} initialDate={selectedDate} />}
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  card: {
-    background: "#fff",
-    padding: 20,
-    borderRadius: 8,
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-  },
-  empty: { color: "#666", fontSize: 14 },
-  list: { listStyle: "none", padding: 0, margin: 0 },
-  item: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    borderBottom: "1px solid #eee",
-  },
-  slot: { fontWeight: 600 },
-  value: { fontSize: 16 },
-  actions: { display: "flex", gap: 8 },
-  editButton: {
-    padding: "4px 10px",
-    fontSize: 12,
-    cursor: "pointer",
-    background: "#e2e8f0",
-    border: "none",
-    borderRadius: 4,
-  },
-  deleteButton: {
-    padding: "4px 10px",
-    fontSize: 12,
-    cursor: "pointer",
-    background: "#fee2e2",
-    border: "none",
-    borderRadius: 4,
-    color: "#dc2626",
-  },
-};

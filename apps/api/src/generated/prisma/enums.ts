@@ -18,3 +18,10 @@ export const Slot = {
 
 export type Slot = (typeof Slot)[keyof typeof Slot]
 
+
+export const Role = {
+  PATIENT: 'PATIENT',
+  DOCTOR: 'DOCTOR'
+} as const
+
+export type Role = (typeof Role)[keyof typeof Role]

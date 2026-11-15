@@ -11,6 +11,7 @@ const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(["PATIENT", "DOCTOR"]).default("PATIENT"),
 });
 
 const loginSchema = z.object({
@@ -46,12 +47,13 @@ export const signup = asyncHandler(
         name: body.name,
         email: body.email,
         password: passwordHash,
+        role: body.role,
       },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, role: true },
     });
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name },
+      { id: user.id, email: user.email, name: user.name, role: user.role },
       config.jwtSecret,
       { expiresIn: config.jwtExpiresIn } as SignOptions
     );
@@ -82,7 +84,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const token = jwt.sign(
-    { id: user.id, email: user.email, name: user.name },
+    { id: user.id, email: user.email, name: user.name, role: user.role },
     config.jwtSecret,
     { expiresIn: config.jwtExpiresIn } as SignOptions
   );
@@ -92,7 +94,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   res.json({
     success: true,
     message: "Logged in",
-    user: { id: user.id, name: user.name, email: user.email },
+    user: { id: user.id, name: user.name, email: user.email, role: user.role },
   });
 });
 
@@ -104,7 +106,7 @@ export const logout = asyncHandler(async (_req: Request, res: Response) => {
 export const me = asyncHandler(async (req: AuthRequest, res: Response) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user?.id },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, role: true },
   });
   if (!user) {
     throw new HttpError(404, "User not found");

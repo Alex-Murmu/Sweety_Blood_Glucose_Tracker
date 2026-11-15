@@ -398,6 +398,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  DoctorPatient: 'DoctorPatient',
   Reading: 'Reading'
 } as const
 
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "reading"
+    modelProps: "user" | "doctorPatient" | "reading"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -489,6 +490,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    DoctorPatient: {
+      payload: Prisma.$DoctorPatientPayload<ExtArgs>
+      fields: Prisma.DoctorPatientFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DoctorPatientFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DoctorPatientFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload>
+        }
+        findFirst: {
+          args: Prisma.DoctorPatientFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DoctorPatientFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload>
+        }
+        findMany: {
+          args: Prisma.DoctorPatientFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload>[]
+        }
+        create: {
+          args: Prisma.DoctorPatientCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload>
+        }
+        createMany: {
+          args: Prisma.DoctorPatientCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DoctorPatientCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload>[]
+        }
+        delete: {
+          args: Prisma.DoctorPatientDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload>
+        }
+        update: {
+          args: Prisma.DoctorPatientUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload>
+        }
+        deleteMany: {
+          args: Prisma.DoctorPatientDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DoctorPatientUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DoctorPatientUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload>[]
+        }
+        upsert: {
+          args: Prisma.DoctorPatientUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DoctorPatientPayload>
+        }
+        aggregate: {
+          args: Prisma.DoctorPatientAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDoctorPatient>
+        }
+        groupBy: {
+          args: Prisma.DoctorPatientGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DoctorPatientGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DoctorPatientCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DoctorPatientCountAggregateOutputType> | number
         }
       }
     }
@@ -610,10 +685,21 @@ export const UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   password: 'password',
+  role: 'role',
   createdAt: 'createdAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const DoctorPatientScalarFieldEnum = {
+  id: 'id',
+  doctorId: 'doctorId',
+  patientId: 'patientId',
+  assignedAt: 'assignedAt'
+} as const
+
+export type DoctorPatientScalarFieldEnum = (typeof DoctorPatientScalarFieldEnum)[keyof typeof DoctorPatientScalarFieldEnum]
 
 
 export const ReadingScalarFieldEnum = {
@@ -662,6 +748,20 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
  * Reference to a field of type 'String[]'
  */
 export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Role'
+ */
+export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
+    
+
+
+/**
+ * Reference to a field of type 'Role[]'
+ */
+export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>
     
 
 
@@ -852,7 +952,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
    * @example
    * ```ts
    * import { PrismaPg } from '@prisma/adapter-pg'
-   * import { PrismaClient } from './generated/prisma/client.js'
+   * import { PrismaClient } from './generated/prisma/client'
    * 
    * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
    * const prisma = new PrismaClient({ adapter })
@@ -872,6 +972,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  doctorPatient?: Prisma.DoctorPatientOmit
   reading?: Prisma.ReadingOmit
 }
 
@@ -935,5 +1036,4 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
-
 
