@@ -79,3 +79,26 @@ summary {
     outline-offset: 3px;
   }
 }
+
+/* White Calendar Picker & Date Input System */
+input[type="date"] {
+  color-scheme: dark;
+  color: #ffffff !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(1) brightness(100);
+  opacity: 0.95;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  filter: invert(1) brightness(120);
+}
+
+input[type="date"]::-moz-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}

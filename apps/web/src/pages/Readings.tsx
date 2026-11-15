@@ -24,20 +24,20 @@ export default function Readings() {
             Hello, {user?.name}. Keep today&apos;s glucose story close and clear.
           </p>
         </div>
-        <div className="flex items-center gap-3 text-sm text-landing-muted">
-          <RiCalendarLine className="size-4 text-landing-accent" />
+        <div className="flex items-center gap-2.5 rounded-lg border border-landing-border bg-landing-panel px-3 py-1.5 text-white shadow-xs">
+          <RiCalendarLine className="size-4 text-white shrink-0" aria-hidden="true" />
           <span className="sr-only">Choose date</span>
           <Input
             type="date"
             value={selectedDate}
             onChange={(event) => setSelectedDate(event.target.value)}
-            className="w-44 h-10"
+            className="h-8 w-36 border-0 bg-transparent px-1 text-xs text-white focus-visible:ring-0"
           />
         </div>
       </div>
       <Card className="border-landing-border bg-landing-panel text-landing-text shadow-sm overflow-hidden">
         <CardContent className="p-0">
-          <ReadingList selectedDate={selectedDate} />
+          <ReadingList selectedDate={selectedDate} onDateChange={setSelectedDate} />
         </CardContent>
       </Card>
     </section>

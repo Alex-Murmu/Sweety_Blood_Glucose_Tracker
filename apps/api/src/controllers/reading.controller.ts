@@ -23,7 +23,7 @@ const updateReadingSchema = z.object({
     .optional(),
   value: z
     .number()
-    .int()
+    .int("Value must be a whole number.")
     .min(40, "Value must be between 40 and 600 mg/dl.")
     .max(600, "Value must be between 40 and 600 mg/dl.")
     .optional(),

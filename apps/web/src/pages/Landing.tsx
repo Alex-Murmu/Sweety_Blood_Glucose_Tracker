@@ -87,7 +87,7 @@ export default function Landing({ onGetStarted, onLogin }: LandingProps) {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,var(--landing-glow),transparent_58%)]" />
             <div className="relative grid gap-5 lg:grid-cols-[1fr_1.5fr_1fr] lg:items-center">
               <div className="hidden space-y-5 lg:block">
-                <MiniPanel icon={<RiCalendarLine className="size-4" />} title="Today, at a glance" body="Four clear moments. One complete rhythm." />
+                <MiniPanel icon={<RiCalendarLine className="size-4 text-white" />} title="Today, at a glance" body="Four clear moments. One complete rhythm." />
                 <MiniPanel icon={<RiTimeLine className="size-4" />} title="Built for real routines" body="Record readings when your day actually happens." />
               </div>
               <Card className="border-landing-border bg-landing-bg text-landing-text shadow-lg">

@@ -37,12 +37,19 @@ function formatDisplayDate(dateStr: string) {
   return dateStr;
 }
 
-export default function ReadingList({ selectedDate }: { selectedDate: string }) {
+interface ReadingListProps {
+  selectedDate: string;
+  onDateChange?: (date: string) => void;
+}
+
+export default function ReadingList({ selectedDate, onDateChange }: ReadingListProps) {
   const [readings, setReadings] = useState<Reading[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const editingReading = readings.find((reading) => reading.id === editingId);
 
   const fetchReadings = useCallback(async () => {
     setLoading(true);
@@ -93,43 +100,60 @@ export default function ReadingList({ selectedDate }: { selectedDate: string }) 
           </div>
         ) : (
           <div className="divide-y divide-landing-border rounded-xl border border-landing-border bg-landing-bg/40 overflow-hidden">
-            {readings.map((reading) => (
-              <div
-                key={reading.id}
-                className="flex flex-wrap items-center justify-between gap-4 px-4 py-4 hover:bg-landing-panel/50 transition-colors"
-              >
-                <div>
-                  <p className="text-sm font-medium text-landing-text">{SLOT_LABELS[reading.slot]}</p>
-                  <p className="mt-1 text-xs text-landing-muted">Recorded for {selectedDate}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <p className="text-xl font-semibold tracking-tight text-landing-text">
-                    {reading.value}{" "}
-                    <span className="text-xs font-normal text-landing-muted">mg/dl</span>
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-1.5"
-                      onClick={() => setEditingId(reading.id)}
-                    >
-                      <RiEditLine className="size-3.5" />
-                      <span>Edit</span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-1.5 text-red-300 hover:bg-red-500/10 hover:text-red-200"
-                      onClick={() => handleDelete(reading.id)}
-                    >
-                      <RiDeleteBinLine className="size-3.5" />
-                      <span>Delete</span>
-                    </Button>
+            {readings.map((reading) => {
+              const isEditing = editingId === reading.id;
+              return (
+                <div
+                  key={reading.id}
+                  className={`flex flex-wrap items-center justify-between gap-4 px-4 py-4 transition-all ${
+                    isEditing
+                      ? "bg-landing-panel-strong/80 ring-2 ring-landing-accent/60"
+                      : "hover:bg-landing-panel/50"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-landing-text">{SLOT_LABELS[reading.slot]}</p>
+                      {isEditing && (
+                        <Badge
+                          variant="outline"
+                          className="text-[11px] text-landing-accent border-landing-accent/40 bg-landing-accent/10"
+                        >
+                          Editing now
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-landing-muted">Recorded for {formatDisplayDate(selectedDate)}</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <p className="text-xl font-semibold tracking-tight text-landing-text">
+                      {reading.value}{" "}
+                      <span className="text-xs font-normal text-landing-muted">mg/dl</span>
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={isEditing ? "default" : "ghost"}
+                        size="sm"
+                        className="gap-1.5"
+                        onClick={() => setEditingId(isEditing ? null : reading.id)}
+                      >
+                        <RiEditLine className="size-3.5" />
+                        <span>{isEditing ? "Cancel" : "Edit"}</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1.5 text-red-300 hover:bg-red-500/10 hover:text-red-200"
+                        onClick={() => handleDelete(reading.id)}
+                      >
+                        <RiDeleteBinLine className="size-3.5" />
+                        <span>Delete</span>
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -158,19 +182,38 @@ export default function ReadingList({ selectedDate }: { selectedDate: string }) 
         )}
       </div>
 
-      {editingId && (
+      {editingId && editingReading ? (
         <ReadingForm
-          onSuccess={() => {
+          key={editingId}
+          onSuccess={(updatedDate) => {
             setEditingId(null);
             fetchReadings();
+            if (updatedDate && updatedDate !== selectedDate && onDateChange) {
+              onDateChange(updatedDate);
+            }
+          }}
+          onCancel={() => setEditingId(null)}
+          initialDate={
+            editingReading.date.includes("T")
+              ? editingReading.date.split("T")[0]
+              : editingReading.date
+          }
+          editingId={editingId}
+          initialSlot={editingReading.slot}
+          initialValue={editingReading.value}
+        />
+      ) : (
+        <ReadingForm
+          key="new"
+          onSuccess={(newDate) => {
+            fetchReadings();
+            if (newDate && newDate !== selectedDate && onDateChange) {
+              onDateChange(newDate);
+            }
           }}
           initialDate={selectedDate}
-          editingId={editingId}
-          initialSlot={readings.find((reading) => reading.id === editingId)?.slot}
-          initialValue={readings.find((reading) => reading.id === editingId)?.value}
         />
       )}
-      {!editingId && <ReadingForm onSuccess={fetchReadings} initialDate={selectedDate} />}
     </div>
   );
 }

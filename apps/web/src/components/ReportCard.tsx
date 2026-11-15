@@ -82,14 +82,14 @@ export default function ReportCard({ title, fetchReport }: ReportCardProps) {
             <span>Range: {formatRange(report, date)}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-landing-muted">
-          <RiCalendarLine className="size-4 text-landing-accent" />
+        <div className="flex items-center gap-2 rounded-lg border border-landing-border bg-landing-bg/60 px-3 py-1.5 text-xs text-white shadow-xs">
+          <RiCalendarLine className="size-4 text-white shrink-0" aria-hidden="true" />
           <span className="sr-only">Report date</span>
           <Input
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
-            className="h-9 w-36 px-2 text-xs"
+            className="h-7 w-32 border-0 bg-transparent px-1 text-xs text-white focus-visible:ring-0"
           />
         </div>
       </CardHeader>
