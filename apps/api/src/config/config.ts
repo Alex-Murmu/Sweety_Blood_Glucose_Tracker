@@ -1,4 +1,24 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// Automatically discover the root .env regardless of working directory
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const candidatePaths = [
+  path.resolve(currentDir, "../../../../.env"), // Root .env relative to src/config
+  path.resolve(currentDir, "../../../.env"),    // Fallback if running from compiled dist/config
+  path.resolve(process.cwd(), ".env"),          // Current directory .env (if executed from root)
+  path.resolve(process.cwd(), "../../.env"),     // Relative when cwd is apps/api
+];
+
+for (const p of candidatePaths) {
+  if (fs.existsSync(p)) {
+    dotenv.config({ path: p });
+    break;
+  }
+}
+dotenv.config();
 
 function required(name: string): string {
   const value = process.env[name];
@@ -19,4 +39,3 @@ export const config = {
   redisUrl: process.env.REDIS_URL || "",
   nodeEnv: process.env.NODE_ENV || "development",
 } as const;
-

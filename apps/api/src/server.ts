@@ -1,7 +1,6 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import "dotenv/config";
 import { config } from "./config/config.js";
 import { prisma } from "./utils/prisma.js";
 import authRoutes from "./routes/auth.js";
