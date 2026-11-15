@@ -1,7 +1,11 @@
-import { HeartPulse, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { RiLockPasswordLine, RiMailLine, RiUser3Line } from "react-icons/ri";
 import { useState } from "react";
-import { Button } from "../components/ui/button.js";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.js";
+import { Button } from "../components/ui/button.tsx";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card.tsx";
+import { Label } from "../components/ui/label.tsx";
+import { Input } from "../components/ui/input.tsx";
+import { Select } from "../components/ui/select.tsx";
+import SweetyLogo from "../components/SweetyLogo.tsx";
 import { useAuth } from "../context/AuthContext.tsx";
 
 export default function Register({ onSwitch }: { onSwitch?: () => void }) {
@@ -27,48 +31,108 @@ export default function Register({ onSwitch }: { onSwitch?: () => void }) {
   }
 
   return (
-    <Card className="w-full max-w-md border-landing-border bg-landing-panel text-landing-text">
-      <CardHeader className="space-y-5">
-        <div className="grid size-11 place-items-center rounded-xl bg-landing-accent text-landing-bg"><HeartPulse className="size-5" /></div>
+    <Card className="w-full max-w-md border-landing-border bg-landing-panel text-landing-text shadow-xl">
+      <CardHeader className="space-y-4">
+        <SweetyLogo size="md" />
         <div>
           <CardTitle className="text-3xl tracking-[-0.05em]">Create your account</CardTitle>
-          <p className="mt-2 text-sm text-landing-muted">A calmer home for your daily glucose routine.</p>
+          <CardDescription className="mt-1.5">
+            A calmer home for your daily glucose rhythm.
+          </CardDescription>
         </div>
       </CardHeader>
       <CardContent>
-        {error && <div className="mb-5 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</div>}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Field label="Name" icon={<UserRound className="size-4" />} value={name} onChange={setName} />
-          <Field label="Email" icon={<Mail className="size-4" />} type="email" value={email} onChange={setEmail} />
-          <label className="block space-y-2 text-sm font-medium">
-            <span>Account type</span>
-            <select value={role} onChange={(event) => setRole(event.target.value as "PATIENT" | "DOCTOR")} className="h-11 w-full rounded-md border border-landing-border bg-landing-bg px-3 text-landing-text outline-none focus:ring-2 focus:ring-landing-accent">
-              <option value="PATIENT">Patient</option>
-              <option value="DOCTOR">Doctor</option>
-            </select>
-          </label>
-          <Field label="Password" icon={<LockKeyhole className="size-4" />} type="password" value={password} onChange={setPassword} />
-          <Button type="submit" disabled={loading} className="h-11 w-full bg-landing-accent text-landing-bg hover:bg-landing-accent-strong">
+        {error && (
+          <div
+            role="alert"
+            className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          >
+            {error}
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="register-name">Full name</Label>
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-landing-muted">
+                <RiUser3Line className="size-4" />
+              </span>
+              <Input
+                id="register-name"
+                required
+                placeholder="Alex Morgan"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="register-email">Email</Label>
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-landing-muted">
+                <RiMailLine className="size-4" />
+              </span>
+              <Input
+                id="register-email"
+                type="email"
+                required
+                placeholder="alex@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="register-role">Account type</Label>
+            <Select
+              id="register-role"
+              value={role}
+              onChange={(e) => setRole(e.target.value as "PATIENT" | "DOCTOR")}
+            >
+              <option value="PATIENT">Patient (Track personal readings)</option>
+              <option value="DOCTOR">Doctor (View assigned patients)</option>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="register-password">Password (at least 6 characters)</Label>
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-landing-muted">
+                <RiLockPasswordLine className="size-4" />
+              </span>
+              <Input
+                id="register-password"
+                type="password"
+                required
+                minLength={6}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <Button type="submit" disabled={loading} className="h-11 w-full mt-2">
             {loading ? "Creating account…" : "Create account"}
           </Button>
         </form>
+
         <p className="mt-6 text-center text-sm text-landing-muted">
           Already have an account?{" "}
-          <button type="button" onClick={onSwitch} className="font-medium text-landing-accent underline-offset-4 hover:underline">Log in</button>
+          <button
+            type="button"
+            onClick={onSwitch}
+            className="font-medium text-landing-accent underline-offset-4 hover:underline cursor-pointer"
+          >
+            Log in
+          </button>
         </p>
       </CardContent>
     </Card>
-  );
-}
-
-function Field({ label, icon, type = "text", value, onChange }: { label: string; icon: React.ReactNode; type?: string; value: string; onChange: (value: string) => void }) {
-  return (
-    <label className="block space-y-2 text-sm font-medium">
-      <span>{label}</span>
-      <span className="relative block">
-        <span className="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-landing-muted">{icon}</span>
-        <input type={type} required minLength={type === "password" ? 6 : undefined} value={value} onChange={(event) => onChange(event.target.value)} className="h-11 w-full rounded-md border border-landing-border bg-landing-bg pl-10 pr-3 text-landing-text outline-none focus:ring-2 focus:ring-landing-accent" />
-      </span>
-    </label>
   );
 }

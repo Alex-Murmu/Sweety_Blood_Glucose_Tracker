@@ -1,7 +1,10 @@
-import { HeartPulse, LockKeyhole, Mail } from "lucide-react";
+import { RiLockPasswordLine, RiMailLine } from "react-icons/ri";
 import { useState } from "react";
-import { Button } from "../components/ui/button.js";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.js";
+import { Button } from "../components/ui/button.tsx";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card.tsx";
+import { Label } from "../components/ui/label.tsx";
+import { Input } from "../components/ui/input.tsx";
+import SweetyLogo from "../components/SweetyLogo.tsx";
 import { useAuth } from "../context/AuthContext.tsx";
 
 export default function Login({ onSwitch }: { onSwitch?: () => void }) {
@@ -25,40 +28,78 @@ export default function Login({ onSwitch }: { onSwitch?: () => void }) {
   }
 
   return (
-    <Card className="w-full max-w-md border-landing-border bg-landing-panel text-landing-text">
-      <CardHeader className="space-y-5">
-        <div className="grid size-11 place-items-center rounded-xl bg-landing-accent text-landing-bg"><HeartPulse className="size-5" /></div>
+    <Card className="w-full max-w-md border-landing-border bg-landing-panel text-landing-text shadow-xl">
+      <CardHeader className="space-y-4">
+        <SweetyLogo size="md" />
         <div>
           <CardTitle className="text-3xl tracking-[-0.05em]">Welcome back</CardTitle>
-          <p className="mt-2 text-sm text-landing-muted">Pick up your glucose story where you left off.</p>
+          <CardDescription className="mt-1.5">
+            Pick up your glucose rhythm where you left off.
+          </CardDescription>
         </div>
       </CardHeader>
       <CardContent>
-        {error && <div className="mb-5 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</div>}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Field label="Email" icon={<Mail className="size-4" />} type="email" value={email} onChange={setEmail} />
-          <Field label="Password" icon={<LockKeyhole className="size-4" />} type="password" value={password} onChange={setPassword} />
-          <Button type="submit" disabled={loading} className="h-11 w-full bg-landing-accent text-landing-bg hover:bg-landing-accent-strong">
+        {error && (
+          <div
+            role="alert"
+            className="mb-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+          >
+            {error}
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="login-email">Email</Label>
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-landing-muted">
+                <RiMailLine className="size-4" />
+              </span>
+              <Input
+                id="login-email"
+                type="email"
+                required
+                placeholder="demo@sweety.local"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="login-password">Password</Label>
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-landing-muted">
+                <RiLockPasswordLine className="size-4" />
+              </span>
+              <Input
+                id="login-password"
+                type="password"
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <Button type="submit" disabled={loading} className="h-11 w-full mt-2">
             {loading ? "Logging in…" : "Log in"}
           </Button>
         </form>
+
         <p className="mt-6 text-center text-sm text-landing-muted">
           Don&apos;t have an account?{" "}
-          <button type="button" onClick={onSwitch} className="font-medium text-landing-accent underline-offset-4 hover:underline">Sign up</button>
+          <button
+            type="button"
+            onClick={onSwitch}
+            className="font-medium text-landing-accent underline-offset-4 hover:underline cursor-pointer"
+          >
+            Sign up
+          </button>
         </p>
       </CardContent>
     </Card>
-  );
-}
-
-function Field({ label, icon, type, value, onChange }: { label: string; icon: React.ReactNode; type: string; value: string; onChange: (value: string) => void }) {
-  return (
-    <label className="block space-y-2 text-sm font-medium">
-      <span>{label}</span>
-      <span className="relative block">
-        <span className="pointer-events-none absolute inset-y-0 left-3 grid place-items-center text-landing-muted">{icon}</span>
-        <input type={type} required value={value} onChange={(event) => onChange(event.target.value)} className="h-11 w-full rounded-md border border-landing-border bg-landing-bg pl-10 pr-3 text-landing-text outline-none ring-offset-landing-bg placeholder:text-landing-muted/60 focus:ring-2 focus:ring-landing-accent" />
-      </span>
-    </label>
   );
 }
