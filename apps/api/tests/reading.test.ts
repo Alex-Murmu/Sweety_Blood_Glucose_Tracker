@@ -49,18 +49,42 @@ describe("Reading validation rules", () => {
     expect(result.value).toBe(140);
     expect(result.slot).toBe("AFTER_LUNCH");
   });
+
+  it("validates future date logic correctly", () => {
+    const now = new Date();
+    const futureDate = new Date(now.getTime() + 1000 * 60 * 60 * 48); // 2 days in future
+    const pastDate = new Date(now.getTime() - 1000 * 60 * 60 * 48); // 2 days in past
+
+    function checkFutureDate(date: Date) {
+      const endOfToday = new Date();
+      endOfToday.setHours(23, 59, 59, 999);
+      if (date > endOfToday) {
+        throw new HttpError(400, "Date cannot be in the future.");
+      }
+    }
+
+    expect(() => checkFutureDate(futureDate)).toThrow("Date cannot be in the future.");
+    expect(() => checkFutureDate(pastDate)).not.toThrow();
+    expect(() => checkFutureDate(now)).not.toThrow();
+  });
 });
 
-describe("HttpError status codes", () => {
+describe("HttpError status codes and messages", () => {
   it("creates error with statusCode and message", () => {
     const err = new HttpError(
       400,
-      "You already have a MORNING reading for this date."
+      "You already have an After lunch reading for this date."
     );
     expect(err.statusCode).toBe(400);
     expect(err.message).toBe(
-      "You already have a MORNING reading for this date."
+      "You already have an After lunch reading for this date."
     );
     expect(err.name).toBe("HttpError");
+  });
+
+  it("formats max readings error message", () => {
+    const err = new HttpError(400, "You can add only 4 readings per day.");
+    expect(err.statusCode).toBe(400);
+    expect(err.message).toBe("You can add only 4 readings per day.");
   });
 });

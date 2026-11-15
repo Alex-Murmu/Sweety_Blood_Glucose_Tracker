@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { ZodError } from "zod";
 
 export type AppError = {
   statusCode: number;
@@ -34,6 +35,10 @@ export const errorHandler = (
   if (err instanceof HttpError) {
     statusCode = err.statusCode;
     message = err.message;
+  } else if (err instanceof ZodError) {
+    statusCode = 400;
+    // Surface the first validation issue in a human-readable way.
+    message = err.issues[0]?.message ?? "Invalid request data";
   } else if (err.name === "ValidationError") {
     statusCode = 400;
     message = err.message;

@@ -29,7 +29,6 @@ const updateReadingSchema = z.object({
     .optional(),
 });
 
-
 const SLOT_LABELS: Record<string, string> = {
   MORNING: "Morning (fasting)",
   AFTER_BREAKFAST: "After breakfast",
@@ -70,12 +69,12 @@ export const listReadings = asyncHandler(
     };
     const [readings, total] = await Promise.all([
       prisma.reading.findMany({
-      where: {
-        ...where,
-      },
-      orderBy: { slot: "asc" },
-      skip: (page - 1) * limit,
-      take: limit,
+        where: {
+          ...where,
+        },
+        orderBy: { slot: "asc" },
+        skip: (page - 1) * limit,
+        take: limit,
       }),
       prisma.reading.count({ where }),
     ]);
@@ -98,12 +97,17 @@ export const createReading = asyncHandler(
     }
 
     const readingDate = new Date(body.date);
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
+    if (isNaN(readingDate.getTime())) {
+      throw new HttpError(400, "Invalid date format");
+    }
+    const endOfToday = endOfDay(new Date());
 
-    if (readingDate < now) {
+    if (readingDate > endOfToday) {
       throw new HttpError(400, "Date cannot be in the future.");
     }
+
+    const slotLabel = SLOT_LABELS[body.slot] || body.slot;
+    const article = body.slot === "MORNING" ? "a" : "an";
 
     const existing = await prisma.reading.findFirst({
       where: {
@@ -118,7 +122,7 @@ export const createReading = asyncHandler(
     if (existing) {
       throw new HttpError(
         400,
-        `You already have an ${SLOT_LABELS[body.slot]} reading for this date.`
+        `You already have ${article} ${slotLabel} reading for this date.`
       );
     }
 
@@ -177,13 +181,18 @@ export const updateReading = asyncHandler(
     }
 
     const readingDate = body.date ? new Date(body.date) : existing.date;
+    if (isNaN(readingDate.getTime())) {
+      throw new HttpError(400, "Invalid date format");
+    }
     const slot = body.slot ?? existing.slot;
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
+    const endOfToday = endOfDay(new Date());
 
-    if (readingDate < now) {
+    if (readingDate > endOfToday) {
       throw new HttpError(400, "Date cannot be in the future.");
     }
+
+    const slotLabel = SLOT_LABELS[slot] || slot;
+    const article = slot === "MORNING" ? "a" : "an";
 
     const conflict = await prisma.reading.findFirst({
       where: {
@@ -199,7 +208,7 @@ export const updateReading = asyncHandler(
     if (conflict) {
       throw new HttpError(
         400,
-        `You already have an ${SLOT_LABELS[slot]} reading for this date.`
+        `You already have ${article} ${slotLabel} reading for this date.`
       );
     }
 
@@ -249,4 +258,3 @@ export const deleteReading = asyncHandler(
     res.json({ success: true, message: "Reading deleted" });
   }
 );
-

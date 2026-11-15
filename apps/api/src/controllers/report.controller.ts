@@ -6,7 +6,13 @@ import { HttpError, asyncHandler } from "../middlewares/errorHandler.js";
 import { getCached, setCached } from "../utils/redis.js";
 
 const dateSchema = z.object({
-  date: z.string().datetime().optional(),
+  // Accept either a plain calendar date (YYYY-MM-DD, as sent by <input type="date">)
+  // or a full ISO-8601 datetime string.
+  date: z
+    .string()
+    .datetime()
+    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .optional(),
   patientId: z.string().optional(),
 });
 
