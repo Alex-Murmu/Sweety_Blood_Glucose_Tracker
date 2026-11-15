@@ -4,6 +4,7 @@ import { api } from "../api.ts";
 import ReadingForm from "./ReadingForm.tsx";
 import { Button } from "./ui/button.tsx";
 import { Badge } from "./ui/badge.tsx";
+import { toast } from "./ui/sonner.tsx";
 
 type Slot = "MORNING" | "AFTER_BREAKFAST" | "AFTER_LUNCH" | "AFTER_DINNER";
 interface Reading {
@@ -74,8 +75,10 @@ export default function ReadingList({ selectedDate, onDateChange }: ReadingListP
       await api.deleteReading(id);
       setReadings((prev) => prev.filter((reading) => reading.id !== id));
       if (editingId === id) setEditingId(null);
+      toast.success("Reading deleted successfully");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Delete failed");
+      const message = err instanceof Error ? err.message : "Delete failed";
+      toast.error(message);
     }
   }
 

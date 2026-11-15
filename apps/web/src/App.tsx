@@ -10,6 +10,7 @@ import { Badge } from "./components/ui/badge.tsx";
 import SweetyLogo from "./components/SweetyLogo.tsx";
 import Landing from "./pages/Landing.tsx";
 import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
+import { Toaster } from "./components/ui/sonner.tsx";
 
 function AppWithAuth() {
   const { user, loading, signout } = useAuth();
@@ -95,6 +96,7 @@ export default function App() {
     <ErrorBoundary fallbackMessage="An unexpected error occurred in Sweety.">
       <AuthProvider>
         <AppWithAuth />
+        <Toaster />
       </AuthProvider>
     </ErrorBoundary>
   );

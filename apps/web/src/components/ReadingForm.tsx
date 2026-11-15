@@ -1,4 +1,4 @@
-import { RiAddLine, RiCalendarLine, RiCloseLine, RiSaveLine } from "react-icons/ri";
+import { RiAddLine, RiCloseLine, RiSaveLine } from "react-icons/ri";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api.ts";
 import { Button } from "./ui/button.tsx";
@@ -6,6 +6,8 @@ import { Input } from "./ui/input.tsx";
 import { Label } from "./ui/label.tsx";
 import { Select } from "./ui/select.tsx";
 import { Badge } from "./ui/badge.tsx";
+import { DatePicker } from "./ui/date-picker.tsx";
+import { toast } from "./ui/sonner.tsx";
 
 type Slot = "MORNING" | "AFTER_BREAKFAST" | "AFTER_LUNCH" | "AFTER_DINNER";
 
@@ -84,11 +86,18 @@ export default function ReadingForm({
       }
       try {
         const dateStr = `${date}T00:00:00.000Z`;
-        if (editingId) await api.updateReading(editingId, { date: dateStr, slot, value: val });
-        else await api.createReading({ date: dateStr, slot, value: val });
+        if (editingId) {
+          await api.updateReading(editingId, { date: dateStr, slot, value: val });
+          toast.success("Reading updated successfully");
+        } else {
+          await api.createReading({ date: dateStr, slot, value: val });
+          toast.success("Reading added successfully");
+        }
         onSuccess(date);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to save reading");
+        const message = err instanceof Error ? err.message : "Failed to save reading";
+        setError(message);
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -149,18 +158,10 @@ export default function ReadingForm({
 
       <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-[1fr_1.2fr_0.8fr_auto] md:items-end">
         <div className="space-y-1.5">
-          <Label htmlFor="reading-date" className="flex items-center gap-1.5 text-white font-medium">
-            <RiCalendarLine className="size-3.5 text-white shrink-0" aria-hidden="true" />
+          <Label className="flex items-center gap-1.5 text-white font-medium">
             <span>Date</span>
           </Label>
-          <Input
-            id="reading-date"
-            type="date"
-            required
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="text-white"
-          />
+          <DatePicker date={date} onDateChange={setDate} className="w-full justify-start h-10" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="reading-slot">Time slot</Label>

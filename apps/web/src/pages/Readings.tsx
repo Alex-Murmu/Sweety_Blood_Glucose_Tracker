@@ -1,7 +1,7 @@
-import { RiCalendarLine, RiHeartPulseLine } from "react-icons/ri";
+import { RiHeartPulseLine } from "react-icons/ri";
 import { useState } from "react";
 import { Card, CardContent } from "../components/ui/card.tsx";
-import { Input } from "../components/ui/input.tsx";
+import { DatePicker } from "../components/ui/date-picker.tsx";
 import ReadingList from "../components/ReadingList.tsx";
 import { useAuth } from "../context/AuthContext.tsx";
 
@@ -24,15 +24,8 @@ export default function Readings() {
             Hello, {user?.name}. Keep today&apos;s glucose story close and clear.
           </p>
         </div>
-        <div className="flex items-center gap-2.5 rounded-lg border border-landing-border bg-landing-panel px-3 py-1.5 text-white shadow-xs">
-          <RiCalendarLine className="size-4 text-white shrink-0" aria-hidden="true" />
-          <span className="sr-only">Choose date</span>
-          <Input
-            type="date"
-            value={selectedDate}
-            onChange={(event) => setSelectedDate(event.target.value)}
-            className="h-8 w-36 border-0 bg-transparent px-1 text-xs text-white focus-visible:ring-0"
-          />
+        <div className="flex items-center gap-2.5">
+          <DatePicker date={selectedDate} onDateChange={setSelectedDate} />
         </div>
       </div>
       <Card className="border-landing-border bg-landing-panel text-landing-text shadow-sm overflow-hidden">

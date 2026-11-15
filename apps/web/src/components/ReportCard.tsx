@@ -1,8 +1,8 @@
-import { RiCalendarLine, RiDropLine } from "react-icons/ri";
+import { RiDropLine } from "react-icons/ri";
 import { useCallback, useEffect, useState } from "react";
 import ReadingChart from "./ReadingChart.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.tsx";
-import { Input } from "./ui/input.tsx";
+import { DatePicker } from "./ui/date-picker.tsx";
 
 export interface Report {
   type: string;
@@ -82,15 +82,8 @@ export default function ReportCard({ title, fetchReport }: ReportCardProps) {
             <span>Range: {formatRange(report, date)}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-landing-border bg-landing-bg/60 px-3 py-1.5 text-xs text-white shadow-xs">
-          <RiCalendarLine className="size-4 text-white shrink-0" aria-hidden="true" />
-          <span className="sr-only">Report date</span>
-          <Input
-            type="date"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-            className="h-7 w-32 border-0 bg-transparent px-1 text-xs text-white focus-visible:ring-0"
-          />
+        <div className="flex items-center">
+          <DatePicker date={date} onDateChange={setDate} size="sm" />
         </div>
       </CardHeader>
       <CardContent className="p-5 sm:p-6">

@@ -54,8 +54,8 @@ export default function Landing({ onGetStarted, onLogin }: LandingProps) {
           <a className="transition-colors hover:text-landing-text" href="#faq">FAQ</a>
         </nav>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" onClick={onLogin}>Log in</Button>
-          <Button variant="outline" onClick={onGetStarted}>Start tracking</Button>
+          <Button className="rounded-full" variant="ghost" onClick={onLogin}>Log in</Button>
+          <Button className="rounded-full" variant="outline" onClick={onGetStarted}>Start tracking</Button>
         </div>
       </header>
 
@@ -124,7 +124,7 @@ export default function Landing({ onGetStarted, onLogin }: LandingProps) {
           </div>
         </section>
 
-        <section id="features" className="border-y border-landing-border bg-landing-bg-soft">
+        <section id="features" className=" ">
           <div className="mx-auto max-w-6xl px-6 py-24">
             <div className="max-w-2xl">
               <p className="text-sm text-landing-accent font-medium">A better daily habit</p>
@@ -177,13 +177,13 @@ export default function Landing({ onGetStarted, onLogin }: LandingProps) {
           </div>
         </section>
 
-        <section id="faq" className="border-t border-landing-border bg-landing-bg-soft">
+        <section id="faq" className="border-t border-landing-border ">
           <div className="mx-auto grid max-w-6xl gap-12 px-6 py-24 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
               <p className="text-sm text-landing-accent font-medium">Questions, answered</p>
               <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Start with what matters.</h2>
             </div>
-            <div className="divide-y divide-landing-border rounded-2xl border border-landing-border bg-landing-panel px-6">
+            <div className="divide-y divide-landing-border rounded border border-landing-border bg-landing-panel px-6">
               {faqs.map(([question, answer]) => (
                 <details key={question} className="group py-5">
                   <summary className="flex cursor-pointer list-none items-center justify-between text-base font-medium text-landing-text [&::-webkit-details-marker]:hidden">
