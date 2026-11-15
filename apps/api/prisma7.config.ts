@@ -12,13 +12,17 @@ const candidatePaths = [
   path.resolve(process.cwd(), "../../.env"),  // Running from apps/api
 ];
 
+let envLoaded = false;
 for (const p of candidatePaths) {
   if (fs.existsSync(p)) {
     dotenv.config({ path: p });
+    envLoaded = true;
     break;
   }
 }
-dotenv.config();
+if (!envLoaded) {
+  dotenv.config();
+}
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
