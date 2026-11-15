@@ -1,0 +1,22 @@
+{
+  "name": "sweety-blood-glucose-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sweety – Blood Glucose Tracker (MERN + PostgreSQL)",
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "seed": "pnpm --filter @sweety/api seed",
+    "start": "pnpm --filter @sweety/api start",
+    "prisma:generate": "pnpm --filter @sweety/api exec prisma generate",
+    "prisma:migrate": "pnpm --filter @sweety/api exec prisma migrate dev",
+    "prisma:deploy": "pnpm --filter @sweety/api exec prisma migrate deploy",
+    "prisma:studio": "pnpm --filter @sweety/api exec prisma studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.4"
+  }
+}
