@@ -37,23 +37,26 @@ export const api = {
     request(`/readings/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteReading: (id: string) => request(`/readings/${id}`, { method: "DELETE" }),
 
-  dailyReport: (date?: string, patientId?: string) => {
+  dailyReport: async (date?: string, patientId?: string) => {
     const params = new URLSearchParams();
     if (date) params.set("date", date);
     if (patientId) params.set("patientId", patientId);
-    return request(`/reports/daily?${params.toString()}`);
+    const res = await request(`/reports/daily?${params.toString()}`);
+    return res?.report || res;
   },
-  monthToDateReport: (date?: string, patientId?: string) => {
+  monthToDateReport: async (date?: string, patientId?: string) => {
     const params = new URLSearchParams();
     if (date) params.set("date", date);
     if (patientId) params.set("patientId", patientId);
-    return request(`/reports/month-to-date?${params.toString()}`);
+    const res = await request(`/reports/month-to-date?${params.toString()}`);
+    return res?.report || res;
   },
-  monthlyReport: (date?: string, patientId?: string) => {
+  monthlyReport: async (date?: string, patientId?: string) => {
     const params = new URLSearchParams();
     if (date) params.set("date", date);
     if (patientId) params.set("patientId", patientId);
-    return request(`/reports/monthly?${params.toString()}`);
+    const res = await request(`/reports/monthly?${params.toString()}`);
+    return res?.report || res;
   },
   doctorPatients: () => request("/doctors/patients"),
   assignPatient: (patientId: string) =>

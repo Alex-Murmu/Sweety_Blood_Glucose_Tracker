@@ -9,6 +9,7 @@ import { Button } from "./components/ui/button.tsx";
 import { Badge } from "./components/ui/badge.tsx";
 import SweetyLogo from "./components/SweetyLogo.tsx";
 import Landing from "./pages/Landing.tsx";
+import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 
 function AppWithAuth() {
   const { user, loading, signout } = useAuth();
@@ -78,8 +79,12 @@ function AppWithAuth() {
         </div>
       </nav>
       <main className="mx-auto max-w-7xl px-6 py-10 lg:px-10 space-y-16">
-        <Readings />
-        <Reports />
+        <ErrorBoundary fallbackMessage="Unable to load daily readings.">
+          <Readings />
+        </ErrorBoundary>
+        <ErrorBoundary fallbackMessage="Unable to load reports.">
+          <Reports />
+        </ErrorBoundary>
       </main>
     </div>
   );
@@ -87,8 +92,10 @@ function AppWithAuth() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppWithAuth />
-    </AuthProvider>
+    <ErrorBoundary fallbackMessage="An unexpected error occurred in Sweety.">
+      <AuthProvider>
+        <AppWithAuth />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

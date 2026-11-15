@@ -20,6 +20,23 @@ const SLOT_LABELS: Record<Slot, string> = {
   AFTER_DINNER: "After dinner",
 };
 
+function formatDisplayDate(dateStr: string) {
+  const parts = dateStr.split("-");
+  if (parts.length === 3) {
+    const [y, m, d] = parts.map(Number);
+    const date = new Date(y, m - 1, d);
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleDateString(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+  }
+  return dateStr;
+}
+
 export default function ReadingList({ selectedDate }: { selectedDate: string }) {
   const [readings, setReadings] = useState<Reading[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -59,7 +76,7 @@ export default function ReadingList({ selectedDate }: { selectedDate: string }) 
     <div>
       <div className="flex items-center justify-between border-b border-landing-border px-5 py-5 sm:px-6">
         <div>
-          <h2 className="font-semibold text-landing-text">Readings for {new Date(selectedDate).toDateString()}</h2>
+          <h2 className="font-semibold text-landing-text">Readings for {formatDisplayDate(selectedDate)}</h2>
           <p className="mt-1 text-xs text-landing-muted">Up to four recorded moments each day.</p>
         </div>
         <Badge variant="secondary" className="px-3 py-1 text-xs">
