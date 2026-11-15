@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Slot {
+  MORNING
+  AFTER_BREAKFAST
+  AFTER_LUNCH
+  AFTER_DINNER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  readings  Reading[]
+  createdAt DateTime @default(now())
+}
+
+model Reading {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  date      DateTime
+  slot      Slot
+  value     Int      @db.Integer
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date, slot])
+  @@index([userId, date])
+}
