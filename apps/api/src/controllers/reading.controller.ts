@@ -29,6 +29,13 @@ const updateReadingSchema = z.object({
 });
 
 
+const SLOT_LABELS: Record<string, string> = {
+  MORNING: "Morning (fasting)",
+  AFTER_BREAKFAST: "After breakfast",
+  AFTER_LUNCH: "After lunch",
+  AFTER_DINNER: "After dinner",
+};
+
 function startOfDay(date: Date): Date {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
@@ -96,7 +103,7 @@ export const createReading = asyncHandler(
     if (existing) {
       throw new HttpError(
         400,
-        `You already have a ${body.slot} reading for this date.`
+        `You already have an ${SLOT_LABELS[body.slot]} reading for this date.`
       );
     }
 
@@ -176,7 +183,7 @@ export const updateReading = asyncHandler(
     if (conflict) {
       throw new HttpError(
         400,
-        `You already have a ${slot} reading for this date.`
+        `You already have an ${SLOT_LABELS[slot]} reading for this date.`
       );
     }
 
