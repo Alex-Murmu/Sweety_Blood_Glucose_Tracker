@@ -1,159 +1,179 @@
 # Sweety – Blood Glucose Tracker
 
-Sweety is a small web app where a diabetes patient can record up to 4 blood glucose readings per day and view daily and monthly reports.
+Sweety is a web application where diabetes patients record up to 4 blood glucose readings per day and view daily, month-to-date, and previous-month reports. Built with Node.js + Express API, PostgreSQL, and React.
 
-Built with:
-- **API**: Node.js + Express + TypeScript (ESM) + Prisma ORM + PostgreSQL
-- **Client**: React 19 + Vite
-- **Auth**: JWT in httpOnly cookies, bcrypt password hashing
+- **API**: Node.js + Express + TypeScript (ESM) + Prisma ORM + PostgreSQL + Redis (ioredis) + BullMQ
+- **Client**: React 19 + Vite + Tailwind CSS + shadcn/ui components + `react-icons` + Recharts
+- **Auth**: JWT stored in secure `httpOnly` cookies + bcrypt password hashing
 
-## Monorepo structure
+---
+
+## Monorepo Structure
 
 ```
-apps/
-  api/   # @sweety/api  — Express backend
-  web/   # @sweety/web  — React frontend
+├── package.json        # Root package.json with unified workspace scripts
+├── .env                # Local PostgreSQL and Redis configuration
+├── .env.example        # Environment variable template
+├── turbo.json          # Turborepo task pipeline
+├── pnpm-workspace.yaml # pnpm workspace definition
+├── docker-compose.yml  # Docker compose for PostgreSQL, Redis, API, and Web
+└── apps/
+    ├── api/            # @sweety/api  — Express backend
+    └── web/            # @sweety/web  — React frontend
 ```
 
-Managed with **pnpm workspaces**.
+---
 
-## 1. Install
+## 1. Installation
+
+Run from the root directory:
 
 ```bash
-# Install dependencies for both workspace apps
+# Install dependencies for both apps from root
 pnpm install
 ```
 
-## 2. Set up the database
+---
 
-Sweety uses **PostgreSQL**. You need a running PostgreSQL server at the `DATABASE_URL` (default `localhost:5432`).
+## 2. Environment Variables & Database Setup
 
-1. Copy the example env file:
-   ```bash
-   cp apps/api/.env.example apps/api/.env
-   ```
-2. Edit `apps/api/.env` and set your `DATABASE_URL` and `JWT_SECRET`.
-3. Run the Prisma migration to create tables:
-   ```bash
-   cd apps/api
-   pnpm prisma migrate dev --name init
-   ```
-4. Seed the database with a demo user and sample readings:
-   ```bash
-   pnpm seed
-   ```
+A local PostgreSQL server and local Redis instance (e.g. running on **Docker Desktop**) can be used directly:
 
-   Demo credentials: patient `demo@sweety.local` / `Password123`; doctor `doctor@sweety.local` / `Password123`
+- **Local PostgreSQL URL**: `postgresql://sweety:sweety@localhost:5432/sweety?schema=public`
+- **Local Redis URL**: `redis://localhost:6379`
 
-> **Note:** PostgreSQL is not installed in this repository. You must have a PostgreSQL server running and reachable at the `DATABASE_URL` before running migrations or seeding.
+### Environment Configuration:
+Both `.env` in root and `apps/api/.env` are configured for local Docker Desktop services.
 
-## 3. Run the apps
+### Prisma Migrations & Seed:
+Run directly from root:
 
-From the repository root, run both apps in parallel (Turborepo):
+```bash
+# 1. Run migrations to create PostgreSQL tables
+pnpm prisma:migrate
+
+# 2. Seed the database with demo patient and doctor accounts + sample readings
+pnpm seed
+```
+
+**Demo accounts:**
+- **Patient**: `demo@sweety.local` / `Password123`
+- **Doctor**: `doctor@sweety.local` / `Password123`
+
+---
+
+## 3. Running the Apps
+
+### A. Run Locally from Root (Turborepo)
+
+Starts both the backend (http://localhost:5000) and frontend (http://localhost:5173) in parallel:
 
 ```bash
 pnpm dev
 ```
 
-Or run them individually:
+### B. Or Run with Docker Compose
+
+Starts PostgreSQL, Redis, API, and Web client together:
 
 ```bash
-# API (http://localhost:5000)
-cd apps/api
-pnpm dev
-
-# Client (http://localhost:5173)
-cd apps/web
-pnpm dev
+docker compose up --build
 ```
 
-## 4. Run tests
+- Web client: <http://localhost:5173>
+- API: <http://localhost:5000>
+- Health check: <http://localhost:5000/health>
 
+---
+
+## 4. Running Tests
+
+Run all test suites across the monorepo from the root:
+
+```bash
+pnpm test
+```
+
+Or run per package:
 ```bash
 # API tests (Jest)
-cd apps/api
-pnpm test
+pnpm --filter @sweety/api test
+
+# Frontend tests (Vitest + React Testing Library)
+pnpm --filter @sweety/web test
 ```
 
-```bash
-# Frontend tests
-cd apps/web
-pnpm test
-```
+---
 
-## 5. Build
+## 5. Building
 
 ```bash
-# Build both apps (TypeScript + Vite)
+# Typecheck and build both apps
 pnpm build
 ```
 
+---
+
 ## API Endpoints
 
-| Method | Path | Description | Auth |
-|--------|------|-------------|------|
-| GET | /health | Health check | No |
-| POST | /auth/signup | Register user | No |
-| POST | /auth/login | Login (sets JWT cookie) | No |
-| POST | /auth/logout | Clear JWT cookie | No |
-| GET | /auth/me | Get current user | Yes |
-| GET | /readings?date= | List readings for a date | Yes |
-| POST | /readings | Create a reading | Yes |
-| GET | /readings/:id | Get a reading | Yes |
-| PUT | /readings/:id | Update a reading | Yes |
-| DELETE | /readings/:id | Delete a reading | Yes |
-| GET | /reports/daily?date= | Daily report | Yes |
-| GET | /reports/month-to-date?date= | Month-to-date report | Yes |
-| GET | /reports/monthly?date= | Monthly (previous month) report | Yes |
-| GET | /doctors/patients | List assigned patients (doctor) | Yes |
-| POST | /doctors/patients | Assign a patient by ID (doctor) | Yes |
+| Method | Path | Description | Auth Required |
+|--------|------|-------------|---------------|
+| `GET` | `/health` | Health check (shows DB connection status) | No |
+| `POST` | `/auth/signup` | Register user (Patient or Doctor) | No |
+| `POST` | `/auth/login` | Login (sets secure httpOnly JWT cookie) | No |
+| `POST` | `/auth/logout` | Clear JWT cookie | No |
+| `GET` | `/auth/me` | Get current authenticated user | Yes |
+| `GET` | `/readings?date=&page=&limit=` | List readings for date with pagination | Yes |
+| `POST` | `/readings` | Create a reading (40–600 mg/dl, 4 slots) | Yes |
+| `GET` | `/readings/:id` | Get single reading | Yes |
+| `PUT` | `/readings/:id` | Update a reading | Yes |
+| `DELETE`| `/readings/:id` | Delete a reading | Yes |
+| `GET` | `/reports/daily?date=&patientId=` | Daily statistics and readings list | Yes |
+| `GET` | `/reports/month-to-date?date=&patientId=` | Month-to-date summary | Yes |
+| `GET` | `/reports/monthly?date=&patientId=` | Full previous month report | Yes |
+| `GET` | `/doctors/patients` | List assigned patients (Doctor role) | Yes (Doctor) |
+| `POST` | `/doctors/patients` | Assign a patient by ID (Doctor role) | Yes (Doctor) |
 
-`GET /readings` also accepts `page` and `limit` (maximum 100). Report endpoints
-accept `patientId` for an assigned doctor.
+---
 
-## Reading validation rules
+## Reading Validation Rules
 
 | Rule | Error message |
 |------|---------------|
-| Value is required | "Please enter a glucose value." |
-| Value must be a whole number between 40 and 600 | "Value must be between 40 and 600 mg/dl." |
-| Only one reading per slot per day | "You already have a {slot} reading for this date." |
-| Maximum 4 readings per day | "You can add only 4 readings per day." |
-| Date cannot be in the future | "Date cannot be in the future." |
+| Value is required | `"Please enter a glucose value."` |
+| Value must be a whole number between 40 and 600 | `"Value must be between 40 and 600 mg/dl."` |
+| Only one reading per slot per day | `"You already have an After lunch reading for this date."` |
+| Maximum 4 readings per day | `"You can add only 4 readings per day."` |
+| Date cannot be in the future | `"Date cannot be in the future."` |
 
-Time slots: Morning (fasting), After breakfast, After lunch, After dinner.
+**Slots**: Morning (fasting), After breakfast, After lunch, After dinner.
+
+---
 
 ## Reports
 
-Each report shows highest, lowest, average (rounded to 1 decimal), and number of readings. Empty periods show a friendly empty state.
+Each report computes:
+- **Highest reading**
+- **Lowest reading**
+- **Average reading** (rounded to 1 decimal place)
+- **Count of readings**
+- Empty period state when no readings exist
 
-- **Daily**: readings for the selected date
-- **Month-to-date**: 1st of the month → selected date
-- **Monthly**: whole previous month
+---
 
-## Environment variables
+## Design & UI System
 
-See `apps/api/.env.example` for all required variables. Never commit real secrets.
+- **Hallmark Aesthetics**: Purposeful, warm dark health aesthetic (`#0b0d0a` olive base, `#a8e06c` lime accent).
+- **Custom Sweety Logo**: Pure mathematical SVG emblem with droplet geometry and embedded heart/glucose rhythm waveform.
+- **Icons**: `react-icons` (`react-icons/ri`) across all components.
+- **shadcn/ui**: Modular components (`Button`, `Card`, `Input`, `Label`, `Select`, `Badge`).
 
-## Seed script
+---
 
-`prisma/seed.ts` creates:
-- User: `demo@sweety.local` / `Password123`
-- 4 sample readings for today (one per slot)
+## Notes & Assumptions
 
-Run with: `pnpm seed` (in `apps/api`)
-
-## Notes / Assumptions
-
-- Auth uses JWT stored in an **httpOnly cookie** (not localStorage).
-- Dates are stored as UTC in PostgreSQL; the client sends the user's local date.
-- PostgreSQL must be running locally (or remotely via `DATABASE_URL`) before migrations/seed.
-- Optional Redis caching and a BullMQ daily reminder job are enabled when `REDIS_URL` is set.
-- `docker compose up --build` starts PostgreSQL, Redis, the API, and the web client.
-- The frontend is a single-page SPA without a routing library (auth-gated views render conditionally).
-- Bonus features included: pagination, Recharts monthly charts, Docker Compose, React Testing Library coverage,
-  Redis report caching, a BullMQ reminder job, and doctor/patient assignments.
-
-## License
-
-MIT
+- Auth uses JWT stored in an **httpOnly cookie** (XSS-safe).
+- Dates are stored as UTC in PostgreSQL; the client sends ISO timestamps for date ranges.
+- Optional Redis caching (5 min TTL) caches reports and invalidates automatically when readings change.
+- BullMQ runs a daily reminder schedule at 9:00 AM.
+- Docker Compose includes automatic migration and database seeding on container start.
