@@ -30,4 +30,3 @@ export const authMiddleware = (
     return next(new HttpError(401, "Invalid or expired token"));
   }
 };
-
