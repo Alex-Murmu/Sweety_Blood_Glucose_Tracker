@@ -35,7 +35,40 @@ pnpm install
 
 ---
 
-## 2. Environment Variables & Database Setup
+## 2. First-time Setup (one command)
+
+Clone the repo, then run:
+
+```bash
+# 1. Copy the env template (required for local Postgres + Redis)
+cp .env.example .env
+
+# 2. Start Postgres + Redis via Docker Desktop, install deps,
+#    generate Prisma client, run migrations, and seed demo data
+pnpm setup:docker
+```
+
+This does everything a first-time cloner needs:
+- `docker compose up -d postgres redis` — starts Postgres (`localhost:5432`) and Redis (`localhost:6379`)
+- `pnpm install` — installs all dependencies
+- `pnpm prisma:generate` — generates the Prisma client
+- `pnpm prisma:migrate` — applies all database migrations
+- `pnpm seed` — creates demo patient/doctor accounts and sample readings
+
+**Demo accounts after setup:**
+- **Patient**: `demo@sweety.local` / `Password123`
+- **Doctor**: `doctor@sweety.local` / `Password123`
+
+If you already have Postgres and Redis running locally (not via Docker), skip the Docker step and just run:
+
+```bash
+cp .env.example .env
+pnpm setup
+```
+
+---
+
+## 3. Environment Variables & Database Setup
 
 A local PostgreSQL server and local Redis instance (e.g. running on **Docker Desktop**) can be used directly:
 
@@ -62,7 +95,7 @@ pnpm seed
 
 ---
 
-## 3. Running the Apps
+## 4. Running the Apps
 
 ### A. Run Locally from Root (Turborepo)
 
@@ -71,6 +104,16 @@ Starts both the backend (http://localhost:5000) and frontend (http://localhost:5
 ```bash
 pnpm dev
 ```
+
+### C. Run Locally with Docker Services Only
+
+Starts PostgreSQL and Redis via Docker Desktop, then runs both apps natively:
+
+```bash
+pnpm dev:docker
+```
+
+Requires Postgres (`localhost:5432`) and Redis (`localhost:6379`) to be reachable locally.
 
 ### B. Or Run with Docker Compose
 
