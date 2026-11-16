@@ -24,7 +24,7 @@ export function Trusties() {
                     alt="@evilrabbit"
                 />
                 <AvatarFallback>ER</AvatarFallback>
-                <AvatarBadge className="bg-green-600 dark:bg-green-800" />
+                <AvatarBadge className="bg-blue-500 ring-2 ring-landing-bg" />
             </Avatar>
             <AvatarGroup className="    ">
                 <Avatar>

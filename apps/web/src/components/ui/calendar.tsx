@@ -70,10 +70,10 @@ export function Calendar({
         ),
         day_button: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-8 w-8 p-0 font-normal text-white hover:bg-landing-accent hover:text-landing-bg transition-colors aria-selected:opacity-100 rounded-md"
+          "h-8 w-8 p-0 font-normal text-white hover:bg-landing-accent hover:text-white transition-colors aria-selected:opacity-100 rounded-md"
         ),
         selected:
-          "bg-landing-accent text-landing-bg font-bold hover:bg-landing-accent hover:text-landing-bg focus:bg-landing-accent focus:text-landing-bg",
+          "bg-landing-accent text-white font-bold hover:bg-landing-accent hover:text-white focus:bg-landing-accent focus:text-white",
         today: "border border-landing-accent/50 text-landing-accent font-semibold",
         outside: "text-landing-muted/40 aria-selected:bg-accent/50 aria-selected:text-muted-foreground",
         disabled: "text-landing-muted/30 opacity-40 cursor-not-allowed",

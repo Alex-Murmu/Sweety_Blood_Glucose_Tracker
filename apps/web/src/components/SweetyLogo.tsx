@@ -21,7 +21,7 @@ export function SweetyLogo({ className = "", size = "md", showText = true }: Swe
     <div className={`inline-flex items-center gap-3 select-none ${className}`}>
       {/* Precision Hallmark SVG Icon: Calibrated glucose droplet with embedded heartbeat rhythm */}
       <div
-        className={`relative grid ${iconSizes[size]} place-items-center rounded-xl bg-gradient-to-br from-landing-accent to-[#72ba3b] p-[1.5px] shadow-[0_0_20px_rgba(168,224,108,0.25)]`}
+        className={`relative grid ${iconSizes[size]} place-items-center rounded-xl bg-gradient-to-br from-landing-accent to-[#1d4ed8] p-[1.5px] shadow-[0_0_20px_rgba(59,130,246,0.35)]`}
       >
         <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-landing-bg">
           <svg

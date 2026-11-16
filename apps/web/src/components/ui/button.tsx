@@ -7,7 +7,7 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-landing-accent text-landing-bg font-semibold hover:bg-landing-accent-strong shadow-sm",
+        default: "bg-landing-accent text-white font-semibold hover:bg-landing-accent-strong shadow-md shadow-blue-500/20",
         destructive: "border border-red-500/20 bg-red-500/10 text-red-200 hover:bg-red-500/20",
         outline: "border border-landing-border bg-transparent text-landing-text hover:bg-landing-panel hover:text-landing-text",
         secondary: "bg-landing-panel text-landing-text hover:bg-landing-panel-strong border border-landing-border",

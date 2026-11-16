@@ -29,7 +29,7 @@ export function Toaster({ ...props }: ToasterProps) {
             "group toast group-[.toaster]:bg-landing-panel group-[.toaster]:text-landing-text group-[.toaster]:border-landing-border group-[.toaster]:shadow-2xl rounded-xl p-4 font-sans text-sm",
           description: "group-[.toast]:text-landing-muted text-xs mt-1",
           actionButton:
-            "group-[.toast]:bg-landing-accent group-[.toast]:text-landing-bg font-semibold",
+            "group-[.toast]:bg-landing-accent group-[.toast]:text-white font-semibold",
           cancelButton:
             "group-[.toast]:bg-landing-panel-strong group-[.toast]:text-landing-muted",
         },

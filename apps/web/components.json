@@ -16,6 +16,8 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "iconLibrary": "react-icons"
+  "iconLibrary": "react-icons",
+  "registries": {
+    "@catalogs": "https://api.catalogs.dev/shadcn/{name}.json"
+  }
 }
-
