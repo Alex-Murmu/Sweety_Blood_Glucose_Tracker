@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RiDashboardLine, RiLogoutBoxRLine, RiUser3Line } from "react-icons/ri";
+import { RiDashboardLine, RiFileCopyLine, RiLogoutBoxRLine, RiUser3Line } from "react-icons/ri";
 import { AuthProvider, useAuth } from "./context/AuthContext.tsx";
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
@@ -10,7 +10,7 @@ import { Badge } from "./components/ui/badge.tsx";
 import SweetyLogo from "./components/SweetyLogo.tsx";
 import Landing from "./pages/Landing.tsx";
 import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
-import { Toaster } from "./components/ui/sonner.tsx";
+import { Toaster, toast } from "./components/ui/sonner.tsx";
 
 function AppWithAuth() {
   const { user, loading, signout } = useAuth();
@@ -72,6 +72,20 @@ function AppWithAuth() {
             <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
               {user.role}
             </Badge>
+            {user.role === "PATIENT" && (
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(user.id);
+                  toast.success("Patient ID copied to clipboard!");
+                }}
+                className="flex items-center gap-1.5 rounded-full border border-landing-border bg-landing-panel px-2.5 py-1 text-[11px] text-landing-muted hover:text-landing-text hover:border-landing-accent/50 cursor-pointer transition-colors"
+                title="Click to copy your Patient ID to give to your doctor"
+              >
+                <span>ID: {user.id.slice(0, 8)}…</span>
+                <RiFileCopyLine className="size-3 text-landing-accent" />
+              </button>
+            )}
           </div>
           <Button onClick={signout} variant="outline" size="sm" className="gap-2">
             <RiLogoutBoxRLine className="size-3.5" />

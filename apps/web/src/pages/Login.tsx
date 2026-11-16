@@ -84,7 +84,7 @@ export default function Login({ onSwitch }: { onSwitch?: () => void }) {
             </div>
           </div>
 
-          <Button type="submit" disabled={loading} className="h-11 w-full mt-2">
+          <Button type="submit" disabled={loading} className="h-11 rounded-full w-full mt-2">
             {loading ? "Logging in…" : "Log in"}
           </Button>
         </form>

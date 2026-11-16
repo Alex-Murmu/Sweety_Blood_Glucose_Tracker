@@ -59,6 +59,11 @@ export const api = {
     return res?.report || res;
   },
   doctorPatients: () => request("/doctors/patients"),
+  doctorDirectory: () => request("/doctors/directory"),
   assignPatient: (patientId: string) =>
     request("/doctors/patients", { method: "POST", body: JSON.stringify({ patientId }) }),
+  unassignPatient: (patientId: string) =>
+    request(`/doctors/patients/${patientId}`, { method: "DELETE" }),
+  runReminders: () => request("/doctors/reminders/run", { method: "POST" }),
+  reminderStatus: () => request("/doctors/reminders/status"),
 };

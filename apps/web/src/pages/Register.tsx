@@ -117,7 +117,7 @@ export default function Register({ onSwitch }: { onSwitch?: () => void }) {
             </div>
           </div>
 
-          <Button type="submit" disabled={loading} className="h-11 w-full mt-2">
+          <Button type="submit" disabled={loading} className="h-11 rounded-full w-full mt-2">
             {loading ? "Creating account…" : "Create account"}
           </Button>
         </form>

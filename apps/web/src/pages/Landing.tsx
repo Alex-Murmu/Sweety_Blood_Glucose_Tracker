@@ -5,12 +5,12 @@ import {
   RiLineChartLine,
   RiPulseLine,
   RiShieldCheckLine,
-  RiSparklingLine,
   RiTimeLine,
 } from "react-icons/ri";
 import { Button } from "../components/ui/button.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.tsx";
 import SweetyLogo from "../components/SweetyLogo.tsx";
+import { Trusties } from "../components/Trusties.tsx";
 
 interface LandingProps {
   onGetStarted: () => void;
@@ -62,8 +62,7 @@ export default function Landing({ onGetStarted, onLogin }: LandingProps) {
       <main>
         <section className="mx-auto max-w-5xl px-6 pb-24 pt-20 text-center lg:pt-28">
           <div className="mx-auto mb-7 flex w-fit items-center gap-2 rounded-full border border-landing-border bg-landing-panel px-3.5 py-1.5 text-xs text-landing-muted">
-            <RiSparklingLine className="size-3.5 text-landing-accent" />
-            <span>A calmer way to understand your glucose rhythm</span>
+            <Trusties />
           </div>
           <h1 className="mx-auto max-w-4xl text-balance text-5xl font-semibold tracking-[-0.06em] text-landing-text sm:text-7xl">
             Know your numbers. Feel more in control.
@@ -154,7 +153,7 @@ export default function Landing({ onGetStarted, onLogin }: LandingProps) {
             <p className="mt-6 max-w-md text-base leading-7 text-landing-muted">
               Log what happened, see where you are, and bring a clearer story to your next conversation with your doctor.
             </p>
-            <Button className="mt-8 gap-2" onClick={onGetStarted}>
+            <Button className=" rounded-full mt-8 gap-2" onClick={onGetStarted}>
               <span>Create your account</span>
               <RiArrowRightUpLine className="size-4" />
             </Button>
